@@ -1,7 +1,8 @@
-﻿// Copyright 2009-2020 Josh Close and Contributors
+﻿// Copyright 2009-2017 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,8 @@ namespace CsvHelper.TypeConversion
 	/// <summary>
 	/// Converts an <see cref="IEnumerable"/> to and from a <see cref="string"/>.
 	/// </summary>
-	public class IEnumerableConverter : DefaultTypeConverter
-	{
+    public class IEnumerableConverter : DefaultTypeConverter
+    {
 		/// <summary>
 		/// Converts the object to a string.
 		/// </summary>
@@ -21,17 +22,17 @@ namespace CsvHelper.TypeConversion
 		/// <param name="row"></param>
 		/// <param name="memberMapData"></param>
 		/// <returns>The string representation of the object.</returns>
-		public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+		public override string ConvertToString( object value, IWriterRow row, MemberMapData memberMapData )
 		{
 			var list = value as IEnumerable;
-			if (list == null)
+			if( list == null )
 			{
-				return base.ConvertToString(value, row, memberMapData);
+				return base.ConvertToString( value, row, memberMapData );
 			}
 
-			foreach (var item in list)
+			foreach( var item in list )
 			{
-				row.WriteField(item.ToString());
+				row.WriteField( item.ToString() );
 			}
 
 			return null;
@@ -44,22 +45,23 @@ namespace CsvHelper.TypeConversion
 		/// <param name="row">The <see cref="IReaderRow"/> for the current record.</param>
 		/// <param name="memberMapData">The <see cref="MemberMapData"/> for the member being created.</param>
 		/// <returns>The object created from the string.</returns>
-		public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+		public override object ConvertFromString( string text, IReaderRow row, MemberMapData memberMapData )
 		{
 			var list = new List<string>();
 
-			if (memberMapData.IsNameSet || row.Configuration.HasHeaderRecord && !memberMapData.IsIndexSet)
+			if( memberMapData.IsNameSet || row.Configuration.HasHeaderRecord && !memberMapData.IsIndexSet )
 			{
 				// Use the name.
 				var nameIndex = 0;
-				while (true)
+				while( true )
 				{
-					if (!row.TryGetField(memberMapData.Names.FirstOrDefault(), nameIndex, out string field))
+					string field;
+					if( !row.TryGetField( memberMapData.Names.FirstOrDefault(), nameIndex, out field ) )
 					{
 						break;
 					}
 
-					list.Add(field);
+					list.Add( field );
 					nameIndex++;
 				}
 			}
@@ -70,11 +72,12 @@ namespace CsvHelper.TypeConversion
 					? row.Context.Record.Length - 1
 					: memberMapData.IndexEnd;
 
-				for (var i = memberMapData.Index; i <= indexEnd; i++)
+				for( var i = memberMapData.Index; i <= indexEnd; i++ )
 				{
-					if (row.TryGetField(i, out string field))
+					string field;
+					if( row.TryGetField( i, out field ) )
 					{
-						list.Add(field);
+						list.Add( field );
 					}
 				}
 			}

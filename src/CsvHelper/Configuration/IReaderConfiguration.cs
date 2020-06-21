@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2020 Josh Close and Contributors
+﻿// Copyright 2009-2017 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
@@ -12,8 +12,8 @@ namespace CsvHelper.Configuration
 	/// <summary>
 	/// Configuration used for the <see cref="IReader"/>.
 	/// </summary>
-	public interface IReaderConfiguration : IParserConfiguration
-	{
+    public interface IReaderConfiguration : IParserConfiguration
+    {
 		/// <summary>
 		/// Gets or sets a value indicating if the
 		/// CSV file has a header record.
@@ -22,29 +22,18 @@ namespace CsvHelper.Configuration
 		bool HasHeaderRecord { get; set; }
 
 		/// <summary>
-		/// Gets or sets the function that is called when a header validation check is ran. The default function
-		/// will throw a <see cref="ValidationException"/> if there is no header for a given member mapping.
-		/// You can supply your own function to do other things like logging the issue instead of throwing an exception.
-		/// Arguments: isValid, headerNames, headerNameIndex, context
+		/// Gets or sets a value indicating if an exception will be
+		/// thrown if a field defined in a mapping is missing.
+		/// True to throw an exception, otherwise false.
+		/// Default is true.
 		/// </summary>
-		Action<bool, string[], int, ReadingContext> HeaderValidated { get; set; }
+		bool ThrowOnMissingField { get; set; }
 
 		/// <summary>
-		/// Gets or sets the function that is called when a missing field is found. The default function will
-		/// throw a <see cref="MissingFieldException"/>. You can supply your own function to do other things
-		/// like logging the issue instead of throwing an exception.
-		/// Arguments: headerNames, index, context
+		/// Gets or sets a value indicating if an exception should be thrown if the header is bad.
+		/// A header is bad if all the mapped members don't match.
 		/// </summary>
-		Action<string[], int, ReadingContext> MissingFieldFound { get; set; }
-
-		/// <summary>
-		/// Gets or sets the function that is called when a reading exception occurs.
-		/// The default function will re-throw the given exception. If you want to ignore
-		/// reading exceptions, you can supply your own function to do other things like
-		/// logging the issue.
-		/// Arguments: exception
-		/// </summary>
-		Func<CsvHelperException, bool> ReadingExceptionOccurred { get; set; }
+		bool ThrowOnBadHeader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the culture info used to read an write CSV files.
@@ -52,14 +41,14 @@ namespace CsvHelper.Configuration
 		CultureInfo CultureInfo { get; set; }
 
 		/// <summary>
-		/// Gets or sets the <see cref="TypeConverterOptionsCache"/>.
+		/// Gets or sets the <see cref="TypeConverterOptionsFactory"/>.
 		/// </summary>
-		TypeConverterOptionsCache TypeConverterOptionsCache { get; set; }
+		TypeConverterOptionsFactory TypeConverterOptionsFactory { get; set; }
 
 		/// <summary>
-		/// Gets or sets the <see cref="TypeConverterCache"/>.
+		/// Gets or sets the <see cref="TypeConverterFactory"/>.
 		/// </summary>
-		TypeConverterCache TypeConverterCache { get; set; }
+		TypeConverterFactory TypeConverterFactory { get; set; }
 
 		/// <summary>
 		/// Prepares the header field for matching against a member name.
@@ -67,7 +56,7 @@ namespace CsvHelper.Configuration
 		/// You should do things like trimming, removing whitespace, removing underscores,
 		/// and making casing changes to ignore case.
 		/// </summary>
-		Func<string, int, string> PrepareHeaderForMatch { get; set; }
+		Func<string, string> PrepareHeaderForMatch { get; set; }
 
 		/// <summary>
 		/// Determines if constructor parameters should be used to create
@@ -76,20 +65,23 @@ namespace CsvHelper.Configuration
 		Func<Type, bool> ShouldUseConstructorParameters { get; set; }
 
 		/// <summary>
-		/// Chooses the constructor to use for constructor mapping.
+		/// Chooses the constructor to use for constuctor mapping.
 		/// </summary>
 		Func<Type, ConstructorInfo> GetConstructor { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating whether references
-		/// should be ignored when auto mapping. True to ignore
-		/// references, otherwise false. Default is false.
+		/// Gets or sets a value indicating whether empty rows should be skipped when reading.
+		/// A record is considered empty if all fields are empty.
 		/// </summary>
-		bool IgnoreReferences { get; set; }
+		/// <value>
+		///   <c>true</c> if [skip empty rows]; otherwise, <c>false</c>.
+		/// </value>
+		bool SkipEmptyRecords { get; set; }
 
 		/// <summary>
 		/// Gets or sets the callback that will be called to
 		/// determine whether to skip the given record or not.
+		/// This overrides the <see cref="SkipEmptyRecords"/> setting.
 		/// </summary>
 		Func<string[], bool> ShouldSkipRecord { get; set; }
 
@@ -101,10 +93,12 @@ namespace CsvHelper.Configuration
 		bool IncludePrivateMembers { get; set; }
 
 		/// <summary>
-		/// Gets or sets a callback that will return the prefix for a reference header.
-		/// Arguments: memberType, memberName
+		/// Gets or sets a value indicating if headers of reference
+		/// member should get prefixed by the parent member name 
+		/// when automapping.
+		/// True to prefix, otherwise false. Default is false.
 		/// </summary>
-		Func<Type, string, string> ReferenceHeaderPrefix { get; set; }
+		bool PrefixReferenceHeaders { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether changes in the column
@@ -115,6 +109,21 @@ namespace CsvHelper.Configuration
 		/// <c>true</c> if [detect column count changes]; otherwise, <c>false</c>.
 		/// </value>
 		bool DetectColumnCountChanges { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether
+		/// exceptions that occur duruing reading
+		/// should be ignored. True to ignore exceptions,
+		/// otherwise false. Default is false.
+		/// </summary>
+		bool IgnoreReadingExceptions { get; set; }
+
+		/// <summary>
+		/// Gets or sets the callback that is called when a reading
+		/// exception occurs. This will only happen when
+		/// <see cref="IgnoreReadingExceptions"/> is true.
+		/// </summary>
+		Action<CsvHelperException, IReader> ReadingExceptionCallback { get; set; }
 
 		/// <summary>
 		/// Gets or sets the member types that are used when auto mapping.
@@ -172,7 +181,7 @@ namespace CsvHelper.Configuration
 		/// </summary>
 		/// <typeparam name="T">The type to generate the map for.</typeparam>
 		/// <returns>The generate map.</returns>
-		ClassMap<T> AutoMap<T>();
+		ClassMap AutoMap<T>();
 
 	    /// <summary>
 	    /// Generates a <see cref="ClassMap"/> for the type.
@@ -180,5 +189,5 @@ namespace CsvHelper.Configuration
 	    /// <param name="type">The type to generate for the map.</param>
 	    /// <returns>The generate map.</returns>
 	    ClassMap AutoMap( Type type );
-	}
+    }
 }
