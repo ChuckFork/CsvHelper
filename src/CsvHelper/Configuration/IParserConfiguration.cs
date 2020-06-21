@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2017 Josh Close and Contributors
+﻿// Copyright 2009-2020 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
@@ -10,11 +10,11 @@ namespace CsvHelper.Configuration
 	/// <summary>
 	/// Configuration used for the <see cref="IParser"/>.
 	/// </summary>
-    public interface IParserConfiguration
-    {
+	public interface IParserConfiguration
+	{
 		/// <summary>
 		/// Gets or sets the size of the buffer
-		/// used for reading and writing CSV files.
+		/// used for reading CSV files.
 		/// Default is 2048.
 		/// </summary>
 		int BufferSize { get; set; }
@@ -33,19 +33,20 @@ namespace CsvHelper.Configuration
 		Encoding Encoding { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating if an exception should
-		/// be thrown when bad field data is detected. A field has
-		/// bad data if it contains a quote and the field is not 
-		/// quoted (escaped).
-		/// True to throw, otherwise false. Default is false.
+		/// Gets or sets the function that is called when bad field data is found. A field
+		/// has bad data if it contains a quote and the field is not quoted (escaped).
+		/// You can supply your own function to do other things like logging the issue
+		/// instead of throwing an exception.
+		/// Arguments: context
 		/// </summary>
-		bool ThrowOnBadData { get; set; }
+		Action<ReadingContext> BadDataFound { get; set; }
 
 		/// <summary>
-		/// Gets or sets a method that gets called when bad
-		/// data is detected.
+		/// Gets or sets a value indicating if a line break found in a quote field should
+		/// be considered bad data. True to consider a line break bad data, otherwise false.
+		/// Defaults to false.
 		/// </summary>
-		Action<ReadingContext> BadDataCallback { get; set; }
+		bool LineBreakInQuotedFieldIsBadData { get; set; }
 
 		/// <summary>
 		/// Gets or sets the character used to denote
@@ -68,7 +69,7 @@ namespace CsvHelper.Configuration
 
 		/// <summary>
 		/// Gets or sets a value indicating if quotes should be
-		/// ingored when parsing and treated like any other character.
+		/// ignored when parsing and treated like any other character.
 		/// </summary>
 		bool IgnoreQuotes { get; set; }
 
@@ -80,9 +81,15 @@ namespace CsvHelper.Configuration
 
 		/// <summary>
 		/// Gets or sets the delimiter used to separate fields.
-		/// Default is ',';
+		/// Default is CultureInfo.CurrentCulture.TextInfo.ListSeparator.
 		/// </summary>
 		string Delimiter { get; set; }
+
+		/// <summary>
+		/// Gets or sets the escape character used to escape a quote inside a field.
+		/// Default is '"'.
+		/// </summary>
+		char Escape { get; set; }
 
 		/// <summary>
 		/// Gets or sets the field trimming options.

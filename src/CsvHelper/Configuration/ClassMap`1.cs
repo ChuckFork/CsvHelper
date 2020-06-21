@@ -1,14 +1,10 @@
-﻿// Copyright 2009-2017 Josh Close and Contributors
+﻿// Copyright 2009-2020 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using CsvHelper.TypeConversion;
 
 namespace CsvHelper.Configuration
 {
@@ -22,20 +18,6 @@ namespace CsvHelper.Configuration
 		/// Creates an instance of <see cref="ClassMap{TClass}"/>.
 		/// </summary>
 		public ClassMap() : base( typeof( TClass ) ) { }
-
-		/// <summary>
-		/// Constructs the row object using the given expression.
-		/// </summary>
-		/// <param name="expression">The expression.</param>
-		public virtual void ConstructUsing( Expression<Func<TClass>> expression )
-		{
-			if( !( expression.Body is NewExpression ) && !( expression.Body is MemberInitExpression ) )
-			{
-				throw new ArgumentException( "Not a constructor expression.", nameof( expression ) );
-			}
-
-			Constructor = expression.Body;
-		}
 
 		/// <summary>
 		/// Maps a member to a CSV field.
@@ -89,7 +71,10 @@ namespace CsvHelper.Configuration
 		}
 
 		/// <summary>
-		/// Maps a member to another class map.
+		/// Meant for internal use only. 
+		/// Maps a member to another class map. When this is used, accessing a property through
+		/// sub-property mapping later won't work. You can only use one or the other. When using
+		/// this, ConvertUsing will also not work.
 		/// </summary>
 		/// <typeparam name="TClassMap">The type of the class map.</typeparam>
 		/// <param name="expression">The expression.</param>

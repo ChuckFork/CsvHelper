@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright 2009-2020 Josh Close and Contributors
+// This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
+// See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
+// https://github.com/JoshClose/CsvHelper
+using System;
 
 namespace CsvHelper
 {
@@ -6,8 +10,9 @@ namespace CsvHelper
 	/// Types of caches.
 	/// </summary>
 	[Flags]
+	[Serializable]
 	public enum Caches
-    {
+	{
 		/// <summary>
 		/// None.
 		/// </summary>
@@ -16,7 +21,7 @@ namespace CsvHelper
 		/// <summary>
 		/// Named index.
 		/// </summary>
-        NamedIndex = 1,
+		NamedIndex = 1,
 
 		/// <summary>
 		/// Delegate that creates objects when reading.
@@ -37,5 +42,5 @@ namespace CsvHelper
 		/// Raw record.
 		/// </summary>
 		RawRecord = 16
-    }
+	}
 }

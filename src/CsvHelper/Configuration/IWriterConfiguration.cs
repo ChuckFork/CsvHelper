@@ -1,39 +1,19 @@
-﻿// Copyright 2009-2017 Josh Close and Contributors
+﻿// Copyright 2009-2020 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
 using System;
 using System.Globalization;
 using CsvHelper.TypeConversion;
+using System.Collections.Generic;
 
 namespace CsvHelper.Configuration
 {
 	/// <summary>
 	/// Configuration used for the <see cref="IWriter"/>.
 	/// </summary>
-    public interface IWriterConfiguration : ISerializerConfiguration
-    {
-		/// <summary>
-		/// Gets or sets a value indicating whether all fields are quoted when writing,
-		/// or just ones that have to be. <see cref="QuoteAllFields"/> and
-		/// <see cref="QuoteNoFields"/> cannot be true at the same time. Turning one
-		/// on will turn the other off.
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if all fields should be quoted; otherwise, <c>false</c>.
-		/// </value>
-		bool QuoteAllFields { get; set; }
-
-		/// <summary>
-		/// Gets or sets a value indicating whether no fields are quoted when writing.
-		/// <see cref="QuoteAllFields"/> and <see cref="QuoteNoFields"/> cannot be true 
-		/// at the same time. Turning one on will turn the other off.
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if [quote no fields]; otherwise, <c>false</c>.
-		/// </value>
-		bool QuoteNoFields { get; set; }
-
+	public interface IWriterConfiguration : ISerializerConfiguration
+	{
 		/// <summary>
 		/// Gets a string representation of the currently configured Quote character.
 		/// </summary>
@@ -41,17 +21,6 @@ namespace CsvHelper.Configuration
 		/// The new quote string.
 		/// </value>
 		string QuoteString { get; }
-
-		/// <summary>
-		/// Gets an array characters that require
-		/// the field to be quoted.
-		/// </summary>
-		char[] QuoteRequiredChars { get; }
-
-		/// <summary>
-		/// Builds the values for the RequiredQuoteChars property.
-		/// </summary>
-		Func<char[]> BuildRequiredQuoteChars { get; set; }
 
 		/// <summary>
 		/// Gets a string representation of two of the currently configured Quote characters.
@@ -62,10 +31,11 @@ namespace CsvHelper.Configuration
 		string DoubleQuoteString { get; }
 
 		/// <summary>
-		/// Gets or sets the character used to quote fields.
-		/// Default is '"'.
+		/// Gets or sets a function that is used to determine if a field should get quoted 
+		/// when writing.
+		/// Arguments: field, context
 		/// </summary>
-		char Quote { get; }
+		Func<string, WritingContext, bool> ShouldQuote { get; set; }
 
 		/// <summary>
 		/// Gets or sets the culture info used to read an write CSV files.
@@ -73,14 +43,14 @@ namespace CsvHelper.Configuration
 		CultureInfo CultureInfo { get; set; }
 
 		/// <summary>
-		/// Gets or sets the <see cref="TypeConverterOptionsFactory"/>.
+		/// Gets or sets the <see cref="TypeConverterOptionsCache"/>.
 		/// </summary>
-		TypeConverterOptionsFactory TypeConverterOptionsFactory { get; set; }
+		TypeConverterOptionsCache TypeConverterOptionsCache { get; set; }
 
 		/// <summary>
-		/// Gets or sets the <see cref="TypeConverterFactory"/>.
+		/// Gets or sets the <see cref="TypeConverterCache"/>.
 		/// </summary>
-		TypeConverterFactory TypeConverterFactory { get; set; }
+		TypeConverterCache TypeConverterCache { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating if comments are allowed.
@@ -102,6 +72,13 @@ namespace CsvHelper.Configuration
 		bool HasHeaderRecord { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether references
+		/// should be ignored when auto mapping. True to ignore
+		/// references, otherwise false. Default is false.
+		/// </summary>
+		bool IgnoreReferences { get; set; }
+
+		/// <summary>
 		/// Gets or sets a value indicating if private
 		/// member should be read from and written to.
 		/// True to include private member, otherwise false. Default is false.
@@ -109,12 +86,10 @@ namespace CsvHelper.Configuration
 		bool IncludePrivateMembers { get; set; }
 
 		/// <summary>
-		/// Gets or sets a value indicating if headers of reference
-		/// member should get prefixed by the parent member name 
-		/// when automapping.
-		/// True to prefix, otherwise false. Default is false.
+		/// Gets or sets a callback that will return the prefix for a reference header.
+		/// Arguments: memberType, memberName
 		/// </summary>
-		bool PrefixReferenceHeaders { get; set; }
+		Func<Type, string, string> ReferenceHeaderPrefix { get; set; }
 
 		/// <summary>
 		/// Gets or sets the member types that are used when auto mapping.
@@ -172,7 +147,7 @@ namespace CsvHelper.Configuration
 	    /// </summary>
 	    /// <typeparam name="T">The type to generate the map for.</typeparam>
 	    /// <returns>The generate map.</returns>
-	    ClassMap AutoMap<T>();
+	    ClassMap<T> AutoMap<T>();
 
 	    /// <summary>
 	    /// Generates a <see cref="ClassMap"/> for the type.
@@ -189,5 +164,13 @@ namespace CsvHelper.Configuration
 		/// reference member's member.
 		/// </summary>
 		bool UseNewObjectForNullReferenceMembers { get; set; }
+
+		/// <summary>
+		/// Gets or sets the comparer used to order the properties
+		/// of dynamic objects when writing. The default is null,
+		/// which will preserve the order the object properties
+		/// were created with.
+		/// </summary>
+		IComparer<string> DynamicPropertySort { get; set; }
 	}
 }

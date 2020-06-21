@@ -1,10 +1,9 @@
-﻿// Copyright 2009-2017 Josh Close and Contributors
+﻿// Copyright 2009-2020 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using CsvHelper.Configuration;
 
 namespace CsvHelper.TypeConversion
@@ -12,8 +11,8 @@ namespace CsvHelper.TypeConversion
 	/// <summary>
 	/// Converts an <see cref="IDictionary"/> to and from a <see cref="string"/>.
 	/// </summary>
-    public class IDictionaryConverter : DefaultTypeConverter
-    {
+	public class IDictionaryConverter : DefaultTypeConverter
+	{
 		/// <summary>
 		/// Converts the object to a string.
 		/// </summary>
@@ -21,17 +20,17 @@ namespace CsvHelper.TypeConversion
 		/// <param name="row">The <see cref="IWriterRow"/> for the current record.</param>
 		/// <param name="memberMapData">The <see cref="MemberMapData"/> for the member being written.</param>
 		/// <returns>The string representation of the object.</returns>
-		public override string ConvertToString( object value, IWriterRow row, MemberMapData memberMapData )
+		public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
 		{
 			var dictionary = value as IDictionary;
-			if( dictionary == null )
+			if (dictionary == null)
 			{
-				return base.ConvertToString( value, row, memberMapData );
+				return base.ConvertToString(value, row, memberMapData);
 			}
 
-			foreach( DictionaryEntry entry in dictionary )
+			foreach (DictionaryEntry entry in dictionary)
 			{
-				row.WriteField( entry.Value );
+				row.WriteField(entry.Value);
 			}
 
 			return null;
@@ -44,7 +43,7 @@ namespace CsvHelper.TypeConversion
 		/// <param name="row">The <see cref="IReaderRow"/> for the current record.</param>
 		/// <param name="memberMapData">The <see cref="MemberMapData"/> for the member being created.</param>
 		/// <returns>The object created from the string.</returns>
-		public override object ConvertFromString( string text, IReaderRow row, MemberMapData memberMapData )
+		public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
 		{
 			var dictionary = new Dictionary<string, string>();
 
@@ -52,12 +51,11 @@ namespace CsvHelper.TypeConversion
 				? row.Context.Record.Length - 1
 				: memberMapData.IndexEnd;
 
-			for( var i = memberMapData.Index; i <= indexEnd; i++ )
+			for (var i = memberMapData.Index; i <= indexEnd; i++)
 			{
-				string field;
-				if( row.TryGetField( i, out field ) )
+				if (row.TryGetField(i, out string field))
 				{
-					dictionary.Add( row.Context.HeaderRecord[i], field );
+					dictionary.Add(row.Context.HeaderRecord[i], field);
 				}
 			}
 

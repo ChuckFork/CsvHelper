@@ -1,11 +1,9 @@
-﻿using CsvHelper.TypeConversion;
-using System;
-using System.Collections.Generic;
+﻿// Copyright 2009-2020 Josh Close and Contributors
+// This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
+// See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
+// https://github.com/JoshClose/CsvHelper
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CsvHelper.Configuration
 {
@@ -16,7 +14,7 @@ namespace CsvHelper.Configuration
 	/// </summary>
 	[DebuggerDisplay( "Data = {Data}" )]
 	public class ParameterMap
-    {
+	{
 		/// <summary>
 		/// Gets the parameter map data.
 		/// </summary>
@@ -39,12 +37,7 @@ namespace CsvHelper.Configuration
 		/// <param name="parameter">The parameter being mapped.</param>
 		public ParameterMap( ParameterInfo parameter )
 		{
-			Data = new ParameterMapData( parameter )
-			{
-				// Set some defaults.
-				TypeConverter = TypeConverterFactory.Current.GetConverter( parameter.ParameterType ),
-				Name = parameter.Name
-			};
+			Data = new ParameterMapData( parameter );
 		}
 
 		internal int GetMaxIndex()

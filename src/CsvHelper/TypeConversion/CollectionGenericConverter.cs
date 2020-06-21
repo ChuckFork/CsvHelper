@@ -1,12 +1,10 @@
-﻿// Copyright 2009-2017 Josh Close and Contributors
+﻿// Copyright 2009-2020 Josh Close and Contributors
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // https://github.com/JoshClose/CsvHelper
-using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using CsvHelper.Configuration;
 
 namespace CsvHelper.TypeConversion
@@ -15,7 +13,7 @@ namespace CsvHelper.TypeConversion
 	/// Converts a <see cref="Collection{T}"/> to and from a <see cref="string"/>.
 	/// </summary>
 	public class CollectionGenericConverter : IEnumerableConverter
-    {
+	{
 		/// <summary>
 		/// Converts the string to an object.
 		/// </summary>
@@ -23,26 +21,25 @@ namespace CsvHelper.TypeConversion
 		/// <param name="row">The <see cref="IReaderRow"/> for the current record.</param>
 		/// <param name="memberMapData">The <see cref="MemberMapData"/> for the member being created.</param>
 		/// <returns>The object created from the string.</returns>
-		public override object ConvertFromString( string text, IReaderRow row, MemberMapData memberMapData )
+		public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
 		{
 			// Since we're using the MemberType here, this converter can be used for multiple types
 			// as long as they implement IList.
-			var list = (IList)ReflectionHelper.CreateInstance( memberMapData.Member.MemberType() );
+			var list = (IList)ReflectionHelper.CreateInstance(memberMapData.Member.MemberType());
 			var type = memberMapData.Member.MemberType().GetGenericArguments()[0];
 
-			if( memberMapData.IsNameSet || row.Configuration.HasHeaderRecord && !memberMapData.IsIndexSet )
+			if (memberMapData.IsNameSet || row.Configuration.HasHeaderRecord && !memberMapData.IsIndexSet)
 			{
 				// Use the name.
 				var nameIndex = 0;
-				while( true )
+				while (true)
 				{
-					object field;
-					if( !row.TryGetField( type, memberMapData.Names.FirstOrDefault(), nameIndex, out field ) )
+					if (!row.TryGetField(type, memberMapData.Names.FirstOrDefault(), nameIndex, out var field))
 					{
 						break;
 					}
 
-					list.Add( field );
+					list.Add(field);
 					nameIndex++;
 				}
 			}
@@ -53,11 +50,11 @@ namespace CsvHelper.TypeConversion
 					? row.Context.Record.Length - 1
 					: memberMapData.IndexEnd;
 
-				for( var i = memberMapData.Index; i <= indexEnd; i++ )
+				for (var i = memberMapData.Index; i <= indexEnd; i++)
 				{
-					var field = row.GetField( type, i );
+					var field = row.GetField(type, i);
 
-					list.Add( field );
+					list.Add(field);
 				}
 			}
 
